@@ -30,7 +30,7 @@ public class Employee {
 
     @Getter
     @Setter
-    @NotBlank(message = "Name may not be blank")
+    @NotBlank(message = "salary may not be blank")
     @Column(name="EMPLOYEE_SALARY")
     private String salary;
 

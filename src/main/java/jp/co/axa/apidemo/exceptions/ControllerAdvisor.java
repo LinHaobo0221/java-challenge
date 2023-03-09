@@ -9,9 +9,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
@@ -38,5 +43,14 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         logger.error(ex.getMessage());
 
         return new ResponseEntity<>(getBody(ex), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleValidException(ConstraintViolationException ex) {
+        List<String> collect = ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(toList());
+        Map<String, List<String>> body = new LinkedHashMap<>();
+        body.put("message", collect);
+        logger.error(collect.toString());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }
