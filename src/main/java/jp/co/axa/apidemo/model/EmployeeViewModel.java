@@ -12,14 +12,24 @@ public class EmployeeViewModel {
     }
 
     @Getter
-    private Long id;
+    private final Long id;
 
     @Getter
-    private String name;
+    private final String name;
 
     @Getter
-    private String salary;
+    private final String salary;
 
     @Getter
-    private String department;
+    private final String department;
+
+    @Override
+    public String toString() {
+        return "EmployeeViewModel{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", salary='" + salary + '\'' +
+                ", department='" + department + '\'' +
+                '}';
+    }
 }
