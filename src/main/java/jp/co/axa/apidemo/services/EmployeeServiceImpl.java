@@ -33,7 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Cacheable(value = "employee", key = "#employeeId")
-    public Employee getEmployee(Long employeeId) {
+    public Employee getEmployee(String employeeId) {
         logger.info("data from db.");
         return employeeRepository.findById(employeeId).orElseThrow(RecordNotFoundException::new);
     }
@@ -63,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Caching(evict = {
             @CacheEvict(value = "employee", allEntries = true),
             @CacheEvict(value = "employees", allEntries = true)})
-    public void deleteEmployee(Long employeeId) {
+    public void deleteEmployee(String employeeId) {
         getEmployee(employeeId);
 
         employeeRepository.deleteById(employeeId);

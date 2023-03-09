@@ -18,9 +18,9 @@ public class Employee {
     @Getter
     @Setter
     @Id
-    @NotNull
+    @NotBlank(message = "ID may not be blank")
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Getter
     @Setter

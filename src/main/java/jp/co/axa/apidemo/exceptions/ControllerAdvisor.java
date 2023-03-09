@@ -31,18 +31,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return body;
     }
 
-    @ExceptionHandler(RecordExistException.class)
-    public ResponseEntity<Object> handleRecordExistException(RecordExistException ex, WebRequest request) {
+    @ExceptionHandler({RecordNotFoundException.class, RecordExistException.class, IllegalArgumentException.class})
+    public ResponseEntity<Object> handleException(RecordExistException ex, WebRequest request) {
         logger.error(ex.getMessage());
 
         return new ResponseEntity<>(getBody(ex), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(RecordNotFoundException.class)
-    public ResponseEntity<Object> handleRecordNotFoundException(RecordNotFoundException ex, WebRequest request) {
-        logger.error(ex.getMessage());
-
-        return new ResponseEntity<>(getBody(ex), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

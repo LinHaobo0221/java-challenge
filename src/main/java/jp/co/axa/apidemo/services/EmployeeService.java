@@ -8,11 +8,11 @@ public interface EmployeeService {
 
     List<Employee> retrieveEmployees();
 
-    Employee getEmployee(Long employeeId);
+    Employee getEmployee(String employeeId);
 
     void saveEmployee(Employee employee);
 
-    void deleteEmployee(Long employeeId);
+    void deleteEmployee(String employeeId);
 
     void updateEmployee(Employee employee);
 }
