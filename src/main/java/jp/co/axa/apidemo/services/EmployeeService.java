@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    List<Employee> retrieveEmployees() throws InterruptedException;
+    List<Employee> retrieveEmployees();
 
     Employee getEmployee(Long employeeId);
 
