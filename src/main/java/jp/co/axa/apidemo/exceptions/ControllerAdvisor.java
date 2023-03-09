@@ -4,26 +4,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
-
 @ControllerAdvice
-public class ControllerAdvisor extends ResponseEntityExceptionHandler {
+public class ControllerAdvisor {
 
     Logger logger = LoggerFactory.getLogger(ControllerAdvisor.class);
 
-    private Map<String, Object> getBody (RuntimeException ex) {
+    private Map<String, Object> getBody(RuntimeException ex) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("message", ex.getMessage());
@@ -31,19 +29,38 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return body;
     }
 
-    @ExceptionHandler({RecordNotFoundException.class, RecordExistException.class, IllegalArgumentException.class})
-    public ResponseEntity<Object> handleException(RecordExistException ex, WebRequest request) {
+    @ExceptionHandler(RecordNotFoundException.class)
+    public ResponseEntity<Object> handleRecordNotFoundException(RecordNotFoundException ex) {
         logger.error(ex.getMessage());
 
         return new ResponseEntity<>(getBody(ex), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleValidException(ConstraintViolationException ex) {
-        List<String> collect = ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(toList());
-        Map<String, List<String>> body = new LinkedHashMap<>();
-        body.put("message", collect);
-        logger.error(collect.toString());
+    @ExceptionHandler(RecordExistException.class)
+    public ResponseEntity<Object> handleRecordExistException(RecordExistException ex) {
+        logger.error(ex.getMessage());
+
+        return new ResponseEntity<>(getBody(ex), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> paramExceptionHandler(MethodArgumentNotValidException e) {
+        BindingResult bindingResult = e.getBindingResult();
+        Map<String, String> body = new LinkedHashMap<>();
+
+        if (bindingResult.hasErrors()) {
+            List<ObjectError> allErrors = bindingResult.getAllErrors();
+            if (!allErrors.isEmpty()) {
+                FieldError error = (FieldError) allErrors.get(0);
+                body.put("message", error.getDefaultMessage());
+                return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            body.put("message", e.getMessage());
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        }
+
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -3,6 +3,7 @@ package jp.co.axa.apidemo.services;
 import jp.co.axa.apidemo.entities.Employee;
 import jp.co.axa.apidemo.exceptions.RecordExistException;
 import jp.co.axa.apidemo.exceptions.RecordNotFoundException;
+import jp.co.axa.apidemo.model.EmployeePayload;
 import jp.co.axa.apidemo.repositories.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Cacheable(value = "employee", key = "#employeeId")
-    public Employee getEmployee(String employeeId) {
+    public Employee getEmployee(Long employeeId) {
         logger.info("data from db.");
         return employeeRepository.findById(employeeId).orElseThrow(RecordNotFoundException::new);
     }
@@ -41,29 +42,32 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Caching(evict = {
             @CacheEvict(value = "employee", allEntries = true),
             @CacheEvict(value = "employees", allEntries = true)})
-    public void saveEmployee(Employee employee) {
-        Employee existEmployee = employeeRepository.findById(employee.getId()).orElse(null);
+    public void saveEmployee(EmployeePayload payload) {
+        Employee target = new Employee();
 
-        if (existEmployee != null) {
-            throw new RecordExistException();
-        }
-
-        employeeRepository.save(employee);
+        target.setName(payload.getName());
+        target.setDepartment(payload.getDepartment());
+        target.setSalary(payload.getSalary());
+        employeeRepository.save(target);
     }
 
     @Caching(evict = {
             @CacheEvict(value = "employee", allEntries = true),
             @CacheEvict(value = "employees", allEntries = true)})
-    public void updateEmployee(Employee employee) {
-        getEmployee(employee.getId());
+    public void updateEmployee(Long id, EmployeePayload payload) {
+        Employee target = getEmployee(id);
 
-        employeeRepository.save(employee);
+        target.setName(payload.getName());
+        target.setDepartment(payload.getDepartment());
+        target.setSalary(payload.getSalary());
+
+        employeeRepository.save(target);
     }
 
     @Caching(evict = {
             @CacheEvict(value = "employee", allEntries = true),
             @CacheEvict(value = "employees", allEntries = true)})
-    public void deleteEmployee(String employeeId) {
+    public void deleteEmployee(Long employeeId) {
         getEmployee(employeeId);
 
         employeeRepository.deleteById(employeeId);

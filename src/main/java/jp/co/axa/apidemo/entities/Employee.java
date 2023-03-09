@@ -16,27 +16,22 @@ import javax.validation.constraints.*;
 public class Employee {
 
     @Getter
-    @Setter
     @Id
-    @NotBlank(message = "ID may not be blank")
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @Getter
     @Setter
-    @NotBlank(message = "Name may not be blank")
     @Column(name="EMPLOYEE_NAME")
     private String name;
 
     @Getter
     @Setter
-    @NotBlank(message = "salary may not be blank")
     @Column(name="EMPLOYEE_SALARY")
     private String salary;
 
     @Getter
     @Setter
-    @NotBlank(message = "department may not be blank")
     @Column(name="DEPARTMENT")
     private String department;
 
