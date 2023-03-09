@@ -1,8 +1,8 @@
 package jp.co.axa.apidemo.services;
 
 import jp.co.axa.apidemo.entities.Employee;
-import jp.co.axa.apidemo.exceptions.RecordExistException;
 import jp.co.axa.apidemo.exceptions.RecordNotFoundException;
+import jp.co.axa.apidemo.model.EmployeeViewModel;
 import jp.co.axa.apidemo.model.EmployeePayload;
 import jp.co.axa.apidemo.repositories.EmployeeRepository;
 import org.slf4j.Logger;
@@ -14,6 +14,8 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -28,15 +30,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Cacheable(value = "employees")
-    public List<Employee> retrieveEmployees() {
+    public List<EmployeeViewModel> retrieveEmployees() {
         logger.info("data from db.");
-        return employeeRepository.findAll();
+        return employeeRepository.findAll().stream().map(employee -> new EmployeeViewModel(employee.getId(), employee.getName(), employee.getSalary(), employee.getDepartment())).collect(toList());
     }
 
     @Cacheable(value = "employee", key = "#employeeId")
-    public Employee getEmployee(Long employeeId) {
+    public EmployeeViewModel getEmployee(Long employeeId) {
         logger.info("data from db.");
-        return employeeRepository.findById(employeeId).orElseThrow(RecordNotFoundException::new);
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(RecordNotFoundException::new);
+        return new EmployeeViewModel(employee.getId(), employee.getName(), employee.getSalary(), employee.getDepartment());
     }
 
     @Caching(evict = {
@@ -55,7 +58,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             @CacheEvict(value = "employee", allEntries = true),
             @CacheEvict(value = "employees", allEntries = true)})
     public void updateEmployee(Long id, EmployeePayload payload) {
-        Employee target = getEmployee(id);
+        Employee target = employeeRepository.findById(id).orElseThrow(RecordNotFoundException::new);
 
         target.setName(payload.getName());
         target.setDepartment(payload.getDepartment());

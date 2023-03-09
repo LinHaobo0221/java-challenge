@@ -1,6 +1,6 @@
 package jp.co.axa.apidemo.controllers;
 
-import jp.co.axa.apidemo.entities.Employee;
+import jp.co.axa.apidemo.model.EmployeeViewModel;
 import jp.co.axa.apidemo.model.EmployeePayload;
 import jp.co.axa.apidemo.services.EmployeeService;
 import org.slf4j.Logger;
@@ -26,12 +26,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees")
-    public List<Employee> getEmployees() {
+    public List<EmployeeViewModel> getEmployees() {
         return employeeService.retrieveEmployees();
     }
 
     @GetMapping("/employees/{employeeId}")
-    public Employee getEmployee(@PathVariable(name = "employeeId") Long employeeId) {
+    public EmployeeViewModel getEmployee(@PathVariable(name = "employeeId") Long employeeId) {
         return employeeService.getEmployee(employeeId);
     }
 
