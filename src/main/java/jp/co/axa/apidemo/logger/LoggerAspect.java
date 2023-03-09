@@ -21,7 +21,7 @@ public class LoggerAspect {
 
     @AfterReturning(value = "pointcut()", returning = "returnValue")
     public void logRequestReturn(JoinPoint joinPoint, Object returnValue) {
-        logger.info("result is :" + returnValue.toString());
+        logger.info("result is :" + returnValue);
         logger.info("Log End: Method Name :" + joinPoint.getSignature().toShortString());
     }
 }
